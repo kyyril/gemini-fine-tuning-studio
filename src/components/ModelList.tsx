@@ -15,6 +15,39 @@ import { useGemini } from "../contexts/GeminiContext";
 import { useGeminiApi } from "../hooks/useGeminiApi";
 import { toast } from "sonner";
 
+interface ModelSnapshot {
+  step: number;
+  epoch?: number;
+  meanLoss: number;
+  computeTime: string;
+}
+
+interface ModelHyperparameters {
+  epochCount: number;
+  batchSize: number;
+  learningRate: number;
+}
+
+interface TuningTask {
+  startTime: string;
+  completeTime: string;
+  snapshots: ModelSnapshot[];
+  hyperparameters: ModelHyperparameters;
+}
+
+interface Model {
+  name: string;
+  displayName: string;
+  baseModel: string;
+  state: "ACTIVE" | "CREATING" | "FAILED";
+  createTime: string;
+  updateTime: string;
+  tuningTask: TuningTask;
+  temperature: number;
+  topP: number;
+  topK: number;
+}
+
 export function ModelList() {
   const { state } = useGemini();
   const { listModels, deleteModel, testModel } = useGeminiApi();
@@ -356,9 +389,7 @@ export function ModelList() {
               )}
 
               <div className="text-xs text-gray-500">
-                Created: {new Date(model.create_time).toLocaleString()}
-                <br />
-                Last Updated: {new Date(model.update_time).toLocaleString()}
+                Creation Time: {new Date(model.createTime).toLocaleString()}
               </div>
             </div>
           ))
