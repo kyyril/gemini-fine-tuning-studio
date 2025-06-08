@@ -56,41 +56,12 @@ export function ModelList() {
   const [testingModels, setTestingModels] = useState<Set<string>>(new Set());
   const [expandedModels, setExpandedModels] = useState<Set<string>>(new Set());
   const [creatingModels, setCreatingModels] = useState<Set<string>>(new Set());
-  const [refreshInterval, setRefreshInterval] = useState<NodeJS.Timeout | null>(
-    null
-  );
 
   useEffect(() => {
     if (state.apiKey) {
       listModels();
     }
   }, [state.apiKey, listModels]);
-
-  useEffect(() => {
-    const creatingModelExists = state.models.some(
-      (model) => model.state === "CREATING"
-    );
-
-    if (creatingModelExists) {
-      // Set up polling every 5 seconds if there's a creating model
-      const interval = setInterval(() => {
-        listModels();
-      }, 5000);
-      setRefreshInterval(interval);
-    } else {
-      // Clear interval if no models are creating
-      if (refreshInterval) {
-        clearInterval(refreshInterval);
-        setRefreshInterval(null);
-      }
-    }
-
-    return () => {
-      if (refreshInterval) {
-        clearInterval(refreshInterval);
-      }
-    };
-  }, [state.models, listModels]);
 
   const handleTestModel = async (modelName: string) => {
     const input = testInputs[modelName];

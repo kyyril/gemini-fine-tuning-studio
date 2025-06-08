@@ -1,8 +1,9 @@
-import React from 'react';
-import { Activity, Clock, CheckCircle } from 'lucide-react';
-import { Card } from './ui/Card';
-import { useGemini } from '../contexts/GeminiContext';
-import { motion } from 'framer-motion';
+import React from "react";
+import { Activity, Clock, CheckCircle } from "lucide-react";
+import { Card } from "./ui/Card";
+import { useGemini } from "../contexts/GeminiContext";
+import { motion } from "framer-motion";
+import { useSimulatedProgress } from "../hooks/useSimulatedProgress";
 
 export function TrainingProgress() {
   const { state } = useGemini();
@@ -11,21 +12,31 @@ export function TrainingProgress() {
     return null;
   }
 
-  const progress = state.currentOperation.metadata.completedPercent || 0;
+  const actualProgress = state.currentOperation.metadata.completedPercent || 0;
   const isComplete = state.currentOperation.done;
+  const progress = useSimulatedProgress(isComplete, actualProgress);
 
   return (
     <Card>
       <div className="flex items-center gap-3 mb-4">
-        <div className={`p-2 rounded-lg ${isComplete ? 'bg-green-100' : 'bg-blue-100'}`}>
+        <div
+          className={`p-2 rounded-lg ${
+            isComplete ? "bg-green-100" : "bg-blue-100"
+          }`}
+        >
           {isComplete ? (
             <CheckCircle className="w-5 h-5 text-green-600" />
           ) : (
-            <Activity className="w-5 h-5 text-blue-600 animate-pulse" />
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+            >
+              <Activity className="w-5 h-5 text-blue-600" />
+            </motion.div>
           )}
         </div>
         <h2 className="text-lg font-semibold text-gray-900">
-          {isComplete ? 'Training Complete' : 'Training in Progress'}
+          {isComplete ? "Training Complete" : "Training in Progress"}
         </h2>
       </div>
 
@@ -37,7 +48,9 @@ export function TrainingProgress() {
           </div>
           <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
             <motion.div
-              className={`h-full rounded-full ${isComplete ? 'bg-green-500' : 'bg-blue-500'}`}
+              className={`h-full rounded-full ${
+                isComplete ? "bg-green-500" : "bg-blue-500"
+              }`}
               initial={{ width: 0 }}
               animate={{ width: `${progress}%` }}
               transition={{ duration: 0.5 }}
@@ -47,11 +60,14 @@ export function TrainingProgress() {
 
         <div className="flex items-center gap-2 text-sm text-gray-600">
           <Clock className="w-4 h-4" />
-          <span>
+          <motion.span
+            animate={{ opacity: [1, 0.5, 1] }}
+            transition={{ duration: 2, repeat: Infinity }}
+          >
             {isComplete
-              ? 'Training completed successfully'
-              : 'This may take several minutes to complete'}
-          </span>
+              ? "Training completed successfully"
+              : "This may take several minutes to complete"}
+          </motion.span>
         </div>
 
         {state.currentOperation.metadata.tunedModel && (
